@@ -1,0 +1,12 @@
+body {
+  margin: 0;
+  padding: 0;
+  font-family: sans-serif;
+  background-color: #B4BAD2;
+}
+.library{  
+    float: right;/*侧边栏居左，改为right可令侧边栏居右*/
+    width: 300px;  
+    background: #B4BAD2;  
+    border-left-style: solid;
+}  
