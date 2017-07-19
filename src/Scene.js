@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import eventProxy from './eventProxy'
-import './Scene.css';
 
 class CanvWrap extends Component{
   constructor(props){

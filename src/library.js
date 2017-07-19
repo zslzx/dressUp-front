@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import $ from 'jquery';
-import './library.css'
 import eventProxy from './eventProxy'
 
 class Library extends Component {
