@@ -55,7 +55,7 @@ class Scene extends Component {
   constructor(props){
   	super(props);
   	this.state = {
-  		activeLayer: 'canvas_top',
+  		activeLayer: global.layerNames[0],
   		mouseX: 0,
   		mouseY: 0,
   		press: false
@@ -65,15 +65,23 @@ class Scene extends Component {
 	    return false;
 	}
   componentDidMount(){
-  	function inborder(nowX, nowY){
-  		var canv = document.getElementById('canvas_top');
-  		if(nowX<0||nowX>canv.width||nowY<0||nowY>canv.height)return false;
-  		return true;
+  	function inborder(nowX, nowY, lastLayer){
+  		let canv = document.getElementById(global.layerNames[0]);
+      if(nowX<0||nowX>canv.width||nowY<0||nowY>canv.height)return -1;
+      for(let i=global.layerNames.length-1;i>=0;i--){
+        let canv = document.getElementById(global.layerNames[i]);
+        let ctx = canv.getContext('2d');
+        let color = ctx.getImageData(nowX, nowY, 1, 1).data;
+        if(color[3]!==0)return global.layerNames[i];
+      }
+  		return lastLayer;
   	}
   	addEventListener('mousedown', function(e) {
   		if(e.which!==1)return;
-	    if(inborder(e.clientX, e.clientY)){
+      let newLayerName = inborder(e.clientX, e.clientY, this.state.activeLayer);
+	    if(newLayerName!==-1){
 	    	this.setState({
+          activeLayer: newLayerName,
 	    		press: true,
 	    		mouseX: e.clientX,
 	    		mouseY: e.clientY
@@ -105,11 +113,13 @@ class Scene extends Component {
   	eventProxy.off('changeLayer');
   }
   render() {
+    let items = [];
+    for(let i = 0; i < global.layerNames.length; i ++){
+      items.push(<CanvWrap canvName={global.layerNames[i]} back={i===0}/>);
+    }
     return (
       <div>
-	      <CanvWrap canvName="canvas_bottom" back={true}/>
-	      <CanvWrap canvName="canvas_middle" back={false}/>
-	      <CanvWrap canvName="canvas_top" back={false}/>
+	      {items}
       </div>
     );
   }

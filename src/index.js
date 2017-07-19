@@ -27,6 +27,8 @@ global.contents = {
 	}]
 };
 
+global.layerNames = ['canvas_bottom','canvas_middle','canvas_top']
+global.layerNames_show = ['bottom','middle','top'];
 
 global.getPixelRatio = function(context) {
     var backingStore = context.backingStorePixelRatio ||
@@ -107,6 +109,13 @@ var TabPane = Tabs.TabPane;
 function changeLayer(key){
 	eventProxy.trigger('changeLayer',key);
 }
+var tabs=[];
+function init(){
+	for(let i = 0; i < global.layerNames.length; i ++){
+		tabs.push( <TabPane tab={global.layerNames_show[i]} key={global.layerNames[i]}> <Library layerName={global.layerNames[i]} /> </TabPane> );
+	}
+}
+init();
 ReactDOM.render(
 	<div style={{height: "100%"}}>
   		<Menu />
@@ -114,10 +123,8 @@ ReactDOM.render(
 		  	<Scene />
 		  	<div style={{height: "100%"}}>
 		  		<div className="library" style={{height: "100%"}}>
-		  			<Tabs defaultActiveKey="canvas_top" onChange={changeLayer}>
-					    <TabPane tab="top" key="canvas_top"><Library layerName="canvas_top"/></TabPane>
-					    <TabPane tab="middle" key="canvas_middle"><Library layerName="canvas_middle"/></TabPane>
-					    <TabPane tab="bottom" key="canvas_bottom"><Library layerName="canvas_bottom"/></TabPane>
+		  			<Tabs defaultActiveKey={global.layerNames[0]} onChange={changeLayer}>
+		  				{tabs}
 					</Tabs>
  				</div>
 			</div>

@@ -13,10 +13,10 @@ class myMenu extends React.Component {
     }
     return (
       <Menu>
-        <h1>Choose Layer</h1>
-        <a id="seltop" className="menu-item" href="javascript:void(0)" onClick={()=>changelayer('canvas_top')}>top</a>
-        <a id="selmid" className="menu-item" href="javascript:void(0)" onClick={()=>changelayer('canvas_middle')}>middle</a>
-        <a id="selbot" className="menu-item" href="javascript:void(0)" onClick={()=>changelayer('canvas_bottom')}>bottom</a>
+        <h1>Menu</h1>
+        <a id="seltop" className="menu-item" href="javascript:void(0)" onClick={()=>changelayer('canvas_top')}>item1</a>
+        <a id="selmid" className="menu-item" href="javascript:void(0)" onClick={()=>changelayer('canvas_middle')}>item2</a>
+        <a id="selbot" className="menu-item" href="javascript:void(0)" onClick={()=>changelayer('canvas_bottom')}>item3</a>
       </Menu>
     );
   }

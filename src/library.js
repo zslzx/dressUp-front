@@ -27,7 +27,7 @@ class Library extends Component {
 	  		that.setState({choosed: nextchoosed});
 	  	};
 	  	function isTransparent(ok){
-	  		return {borderColor: ok?"#33ccff":"transparent"}
+	  		return {borderColor: ok?"#108EE9":"transparent"}
 	  	}
 	  	let ret = [];
 	  	if(true){

@@ -5,7 +5,7 @@ body {
   background-color: white;
 }
 .library{  
-    float: right;/*侧边栏居左，改为right可令侧边栏居右*/
+    float: right;
     width: 300px;  
     background: white;  
     border-left-style: solid;
@@ -26,7 +26,7 @@ body {
 	vertical-align: middle
 }
 .item:hover{
-	background-color: #33ccff
+	background-color: #108EE9
 }
 
 .scene{
@@ -44,6 +44,7 @@ body {
 
 .bm-menu h1 {
   padding: 1em 0em 0em 0em;
+  color: #108EE9;
 }
 
 .bm-item-list > a{
@@ -61,7 +62,7 @@ body {
 
 /* Color/shape of burger icon bars */
 .bm-burger-bars {
-  background: #373a47;
+  background: #bdc3c7;
 }
 
 /* Position and sizing of clickable cross button */
@@ -88,7 +89,7 @@ body {
 }
 .bm-menu a:hover,
 .bm-menu a:focus {
-  color: #c94e50;
+  color: #108EE9;
 }
 
 #slide .bm-menu,
