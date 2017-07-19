@@ -8,8 +8,8 @@ class myMenu extends React.Component {
   render () {
     function changelayer(layerName){
       //alert(window.choosedCanvas);
-      eventProxy.trigger('changeLayer',layerName);
-      eventProxy.trigger('changeLayer_1',layerName);
+      //eventProxy.trigger('changeLayer',layerName);
+      //eventProxy.trigger('changeLayer_1',layerName);
       return false;
     }
     return (

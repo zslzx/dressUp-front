@@ -2,11 +2,120 @@ body {
   margin: 0;
   padding: 0;
   font-family: sans-serif;
-  background-color: #B4BAD2;
+  background-color: white;
 }
 .library{  
     float: right;/*侧边栏居左，改为right可令侧边栏居右*/
     width: 300px;  
-    background: #B4BAD2;  
+    background: white;  
     border-left-style: solid;
 }  
+
+
+.item{
+	width: 50px;
+	height: 50px;
+	margin: auto;
+	margin-top: 5px;
+
+	padding: 0px;
+	border: 3px solid;
+	border-radius: 10px;
+	text-align: center;
+	display: table-cell;
+	vertical-align: middle
+}
+.item:hover{
+	background-color: #33ccff
+}
+
+.scene{
+  position: absolute;
+}
+
+
+.sceneback{
+  background-color: #F0FFFF;
+}
+
+/*
+	Sidebar
+*/
+
+.bm-menu h1 {
+  padding: 1em 0em 0em 0em;
+}
+
+.bm-item-list > a{
+  padding: 0em 0em 0em 0.5em;
+}
+
+/* Position and sizing of burger button */
+.bm-burger-button {
+  position: fixed;
+  width: 36px;
+  height: 30px;
+  left: 36px;
+  top: 36px;
+}
+
+/* Color/shape of burger icon bars */
+.bm-burger-bars {
+  background: #373a47;
+}
+
+/* Position and sizing of clickable cross button */
+.bm-cross-button {
+  height: 24px;
+  width: 24px;
+}
+
+/* Color/shape of close button cross */
+.bm-cross {
+  background: #bdc3c7;
+}
+
+/* General sidebar styles */
+.bm-menu {
+  background: white;
+  overflow: auto;
+}
+.bm-menu a {
+  font-size: 18px;
+  line-height: 50px;
+  color: #b8b7ad;
+  text-decoration: none;
+}
+.bm-menu a:hover,
+.bm-menu a:focus {
+  color: #c94e50;
+}
+
+#slide .bm-menu,
+#stack .bm-menu {
+  padding: 0em 0em 0;
+  font-size: 1.15em;
+}
+
+#slide .bm-cross,
+#stack .bm-cross {
+  background: #bdc3c7;
+}
+
+/* Morph shape necessary with bubble or elastic */
+.bm-morph-shape {
+  fill: #373a47;
+}
+
+/* Wrapper for item list */
+.bm-item-list {
+  color: #b8b7ad;
+  padding: 0em 0em 0em 1em;
+  overflow: hidden;
+}
+
+/* Styling of overlay */
+.bm-overlay {
+  background: rgba(0, 0, 0, 0.3);
+}
+

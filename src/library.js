@@ -7,21 +7,13 @@ class Library extends Component {
   constructor(props) {
     super(props);
     this.state = {
-    	nowLayer: 'canvas_top',
+    	nowLayer: this.props.layerName,
     	choosed: {
     		canvas_top: -1,
     		canvas_middle: -1,
     		canvas_bottom: -1
     	}
     };
-  }
-  componentDidMount(){
-  	eventProxy.on('changeLayer_1',(layerName)=>{
-		this.setState({nowLayer: layerName});
-	});
-  }
-  ComponentWillUnmount(){
-  	eventProxy.off('changeLayer_1');
   }
   render() {
   	var getContents = ()=>{
@@ -35,6 +27,9 @@ class Library extends Component {
 	  		eventProxy.trigger('changeImg_'+that.state.nowLayer,img);
 	  		that.setState({choosed: nextchoosed});
 	  	};
+	  	function isTransparent(ok){
+	  		return {borderColor: ok?"#33ccff":"transparent"}
+	  	}
 	  	let ret = [];
 	  	if(true){
 	  		let i =-1;
@@ -42,7 +37,7 @@ class Library extends Component {
 	  		$.extend(nextchoosed,this.state.choosed);
 	  		nextchoosed[this.state.nowLayer]=i;
 	  		ret.push(
-	  			<div key={i} className="item" onClick={()=>{rechoose(i,this);}} style={{border: (i===this.state.choosed[this.state.nowLayer])?"1px solid":"0px solid"}}>
+	  			<div key={i} className="item" onClick={()=>{rechoose(i,this);}} style={isTransparent(i===this.state.choosed[this.state.nowLayer])}>
 	  				null
 	  			</div>
 	  			);
@@ -52,7 +47,7 @@ class Library extends Component {
 	  		$.extend(nextchoosed,this.state.choosed);
 	  		nextchoosed[this.state.nowLayer]=i;
 	  		ret.push(
-	  			<div key={i} className="item" onClick={(e)=>{rechoose(i,this);}} style={{border: (i===this.state.choosed[this.state.nowLayer])?"1px solid":"0px solid"}}>
+	  			<div key={i} className="item" onClick={(e)=>{rechoose(i,this);}} style={isTransparent(i===this.state.choosed[this.state.nowLayer])}>
 	  				<img src={global.contents[this.state.nowLayer][i].src} alt={""} height={40} width={40}/>
 	  			</div>
 	  			);
@@ -62,9 +57,9 @@ class Library extends Component {
   	var contents = getContents();
     return (
       <div>
-      	<p style={{padding: 10}}>
+      	<h1 style={{padding: 10}}>
       		{this.state.nowLayer+":"}
-      	</p>
+      	</h1>
       	{contents}
       </div>
     );
