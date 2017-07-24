@@ -42,6 +42,7 @@ class Library extends Component {
 	  			);
 	  	}
 	  	for(let i=0;i<global.contents[this.state.nowLayer].length;i++){
+	  		if((i+1)%3===0)ret.push(<br />);
 	  		let nextchoosed = {};
 	  		$.extend(nextchoosed,this.state.choosed);
 	  		nextchoosed[this.state.nowLayer]=i;

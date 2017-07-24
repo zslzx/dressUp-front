@@ -3,27 +3,33 @@ body {
   padding: 0;
   font-family: sans-serif;
   background-color: white;
-}
-.library{  
+} 
+.sidebar{  
     float: right;
-    width: 300px;  
+    width: 300px; 
     background: white;  
     border-left-style: solid;
 }  
-
+.box{
+  margin: 3px;
+  border: 1px solid;
+  border-radius: 4px;
+}
+.box_center{
+  text-align: center;
+}
 
 .item{
 	width: 100px;
 	height: 68px;
 	margin: auto;
 	margin-top: 5px;
-
 	padding: 0px;
 	border: 3px solid;
 	border-radius: 10px;
 	text-align: center;
 	display: table-cell;
-	vertical-align: middle
+  vertical-align: middle
 }
 .item:hover{
 	background-color: #108EE9
@@ -31,6 +37,7 @@ body {
 
 .scene{
   position: absolute;
+  cursor:crosshair
 }
 
 
