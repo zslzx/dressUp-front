@@ -1,218 +1,8 @@
 import React, { Component } from 'react';
 import eventProxy from './eventProxy'
-import Mypaint from './mypaint'
+import CanvWrap from './CanvWrap'
+import CanvWrapText from './CanvWrapText'
 var co = require('co');
-class CanvWrap extends Component{
-  constructor(props){
-  	super(props);
-  	this.state={
-  		img: null,
-  		pX: 0,
-  		pY: 0
-  	}
-    this.copy = null;
-    this.oriImg = null;
-    this.color1 = "#FFFFFF";
-    this.color2 = "#FFFFFF";
-    this.type = "pure";
-    this.sWidth = "20";
-    this.dx = null;
-    this.dy = null;
-    this.width = 600;
-    this.height = 800;
-  }
-  shouldComponentUpdate(nextProps, nextState){
-	    return false;
-	}
-  componentDidMount(){
-    this.state.img = document.createElement("canvas");
-    this.state.img.width=this.width;
-    this.state.img.height=this.height;
-  	function showImg(canvasName, img, pX, pY){
-  		var canv = document.getElementById(canvasName);
-  		var ctx = canv.getContext('2d');
-  		ctx.clearRect(0, 0, canv.width, canv.height);
-  		if(!img) return;
-  		var ratio = global.getPixelRatio(ctx);
-  		ctx.drawImage(img,pX*ratio,pY*ratio);
-  	}
-  	showImg(this.props.canvName, this.state.img,this.state.pX,this.state.pY);
-
-  	eventProxy.on('moveImg_'+this.props.canvName, (dx, dy)=>{
-  		this.setState({pX: this.state.pX+dx,pY: this.state.pY+dy},()=>{
-  			showImg(this.props.canvName, this.state.img,this.state.pX,this.state.pY);
-        paintRect();
-  		});
-  	});
-    let updateImg = (reColor)=>{
-      let canvasBuffer = this.state.img;
-      let contextBuffer = this.state.img.getContext("2d");
-      canvasBuffer.width=this.width;
-      canvasBuffer.height=this.height;
-      contextBuffer = this.state.img.getContext("2d");
-      contextBuffer.clearRect(0, 0, canvasBuffer.width, canvasBuffer.height);
-      if(this.oriImg!==null){
-        
-        contextBuffer.drawImage(this.oriImg,0,0,this.width,this.height);
-      }
-      if(reColor &&this.props.canvName !== global.layerNames[0]){
-        let imgData = contextBuffer.getImageData(0,0,canvasBuffer.width,canvasBuffer.height);
-        switch(this.type){
-          case 'pure':
-            Mypaint.paint(imgData,this.color1,this.dx,this.dy);
-            break;
-          case 'horizontal':
-            Mypaint.paint_horizontal(imgData,this.color1,this.color2,this.sWidth,this.dx,this.dy);
-            break;
-          case 'vertical':
-            Mypaint.paint_vertical(imgData,this.color1,this.color2,this.sWidth,this.dx,this.dy);
-            break;
-          case 'plaid':
-            Mypaint.paint_plaid(imgData,this.color1,this.color2,this.sWidth,this.dx,this.dy);
-            break;
-          default:
-            Mypaint.paint(imgData,this.color1,this.dx,this.dy);
-        }
-        contextBuffer.putImageData(imgData,0,0);
-      }
-      showImg(this.props.canvName, this.state.img,this.state.pX,this.state.pY);
-      this.dx = null;
-      this.dy = null;
-    }
-    let updateSize = (width,height)=>{
-      console.log(width+' '+height)
-      this.width = width;
-      this.height = height;
-      let canv = document.createElement('canvas');
-      canv.width = width;
-      canv.height = height;
-      let ctx = canv.getContext('2d');
-      ctx.clearRect(0, 0, canv.width, canv.height);
-      let ratio = global.getPixelRatio(ctx);
-      ctx.drawImage(this.copy,0,0,width*ratio,height*ratio);
-      console.log('last:'+this.state.img.width+' '+this.state.img.height)
-      this.state.img = canv;
-      showImg(this.props.canvName, this.state.img,this.state.pX,this.state.pY);
-    }
-    var paintRect = ()=>{
-      console.log("??");
-      let canv = document.getElementById('opLayer');
-      let ctx = canv.getContext('2d');
-      ctx.clearRect(0,0,canv.width,canv.height);
-      ctx.strokeRect(this.state.pX, this.state.pY, this.width, this.height);
-    }
-    var prepareCopy = ()=>{
-      let canv = document.createElement('canvas');
-      canv.width = this.width;
-      canv.height = this.height;
-      let ctx = canv.getContext('2d');
-      ctx.clearRect(0, 0, canv.width, canv.height);
-      let ratio = global.getPixelRatio(ctx);
-      ctx.drawImage(this.state.img,0,0,this.width*ratio,this.height*ratio);
-      this.copy = canv;
-    }
-    eventProxy.on('changeColor_'+this.props.canvName,(type,color1,color2,sWidth)=>{
-      this.type = type;
-      this.color1 = color1;
-      this.color2 = color2;
-      this.sWidth = sWidth;
-      updateImg(true);
-      paintRect();
-    });
-    eventProxy.on('changeColor2_'+this.props.canvName,(type,color1,color2,sWidth,dx,dy)=>{
-      this.type = type;
-      this.color1 = color1;
-      this.color2 = color2;
-      this.sWidth = sWidth;
-      this.dx = dx-this.state.pX;
-      this.dy = dy-this.state.pY;
-      updateImg(true);
-      paintRect();
-    });
-  	eventProxy.on('changeImg_'+this.props.canvName, (img)=>{
-      this.oriImg = img;
-      this.width = img.width;
-      this.height = img.height;
-      eventProxy.trigger('getSize',this.width,this.height);
-      updateImg(false);
-      paintRect();
-  	});
-    eventProxy.on('querySize_'+this.props.canvName, ()=>{
-      eventProxy.trigger('getSize',this.width,this.height);
-    });
-    eventProxy.on('changeSize_'+this.props.canvName, updateSize);
-    eventProxy.on('paintRect_'+this.props.canvName,paintRect);
-    eventProxy.on('getSelSide_'+this.props.canvName,(x, y, resolve)=>{
-      let disUp = Math.abs(y-this.state.pY);
-      let disDown = Math.abs(y-(this.state.pY+this.height));
-      let disLeft = Math.abs(x-this.state.pX);
-      let disRight = Math.abs(x-(this.state.pX+this.width));
-      let minval = Math.min(disUp,disDown,disLeft,disRight);
-      if(minval > 5)resolve(-1);
-      prepareCopy();
-      if(disRight<=minval){
-        resolve(1);
-      }else if(disDown<=minval){
-        resolve(2);
-      }else if(disLeft<=minval){
-        resolve(3);
-      }else{
-        resolve(0);
-      }
-    });
-    eventProxy.on('resizeTo_'+this.props.canvName,(x, y, selside)=>{
-      let newh,neww;
-      switch(selside){
-        case 0:
-          if(y+10 >= (this.state.pY+this.height))break;
-          newh = this.state.pY+this.height - y;
-          this.state.pY = y;
-          updateSize(this.width,newh);
-          break;
-        case 1:
-          if(x-10 <= this.state.pX)break;
-          neww = x-this.state.pX;
-          updateSize(neww,this.height);
-          break;
-        case 2:
-          if(y-10 <= this.state.pY)break;
-          newh = y-this.state.pY;
-          updateSize(this.width,newh);
-          break;
-        case 3:
-          if(x+10 >= this.state.pX+this.width)break;
-          neww = this.state.pX+this.width-x;
-          this.state.pX = x;
-          updateSize(neww,this.height);
-          break;
-        case -1:
-          break;
-        default:
-          break;
-      }
-      if(selside !== -1)paintRect();
-    });
-  }
-  ComponentWillUnmount(){
-  	eventProxy.off('moveImg_'+this.props.canvName);
-  	eventProxy.off('changeImg_'+this.props.canvName);
-    eventProxy.off('changeColor_'+this.props.canvName);
-    eventProxy.off('changeColor2_'+this.props.canvName);
-    eventProxy.off('querySize_'+this.props.canvName);
-    eventProxy.off('changeSize_'+this.props.canvName);
-    eventProxy.off('getSelSide_'+this.props.canvName);
-    eventProxy.off('resizeTo_'+this.props.canvName);
-  }
-  render(){
-  	var cname;
-  	if(this.props.back)cname = "scene sceneback";
-  	else cname = "scene";
-  	return (
-  		<canvas id={this.props.canvName} className={cname} width={600} height={800}></canvas>
-  	);
-  }
-}
-
 
 class Scene extends Component {
   constructor(props){
@@ -223,8 +13,11 @@ class Scene extends Component {
   		mouseY: 0,
   		press: false
   	};
-    this.mode = "move";
+    this.mode = "hand";
     this.selside = -1;
+    this.moved = false;
+    this.newLayerName = this.state.activeLayer;
+    this.pointer = 'normal';
   }
   shouldComponentUpdate(nextProps, nextState){
 	    return false;
@@ -235,9 +28,9 @@ class Scene extends Component {
       this.setState({activeLayer:newLayerName},
         ()=>{eventProxy.trigger('paintRect_'+newLayerName);},fn?fn.apply(this,args):null);
     }
-    var changeHand = (mode)=>{
+    var changeMode = (mode)=>{
       this.mode = mode;
-      if(mode === 'show'){
+      if(mode === 'show' || mode === 'pen' || mode === 'eraser' || mode === 'text'){
         let canv = document.getElementById('opLayer');
         let ctx = canv.getContext('2d');
         ctx.clearRect(0,0,canv.width,canv.height);
@@ -257,101 +50,222 @@ class Scene extends Component {
       }
   		return 0;
   	}
-    var doResize_sel =(layerName,pX,pY,newLayerName)=>{
-      var press = (selside) =>{
-        this.selside = selside;
-        this.setState({press:true});
-      }
-      co(function*(){
-        let selside = yield new Promise(function(resolve,reject){
-          eventProxy.trigger('getSelSide_'+ layerName, pX, pY, resolve);
-        });
-        if(selside !== -1){
-          press(selside);  
-        }
-        else if(newLayerName!==0){
-          changeActiveLayer(newLayerName,()=>{eventProxy.trigger('paintRect_'+newLayerName);});
-        }
-      });
-    }
-    var changeRsizeHand = (pX,pY)=>{
-      /*
-      co(function*(){
-        let selside = yield new Promise(function(resolve,reject){
-          eventProxy.trigger('getSelSide_'+ layerName, pX, pY, resolve);
-        });
-        if(selside !== -1){
-          press(selside);  
-        }
-        else if(newLayerName!==0){
-          changeActiveLayer(newLayerName,()=>{eventProxy.trigger('paintRect_'+newLayerName);});
-        }
-      });
-      */
-    }
-    var wirteHand = ()=>{
+    function paint(mode, x2, y2, x1, y1){
+      let asin = global.penRadius*Math.sin(Math.atan((y2-y1)/(x2-x1)));
+      let acos = global.penRadius*Math.cos(Math.atan((y2-y1)/(x2-x1)))
+      let x3 = x1+asin;
+      let y3 = y1-acos;
+      let x4 = x1-asin;
+      let y4 = y1+acos;
+      let x5 = x2+asin;
+      let y5 = y2-acos;
+      let x6 = x2-asin;
+      let y6 = y2+acos;
+      let canv = document.getElementById('paintLayer');
+      let ctx = canv.getContext('2d');
+      if(mode === 'pen'){
+        co(function*(){
+          let pColor = yield new Promise(function(resolve,reject){
+            eventProxy.trigger('getColor1',resolve);
+          });
+          
+          ctx.beginPath();
+          ctx.arc(x2,y2,global.penRadius,0,2*Math.PI);
+          ctx.fillStyle=pColor;
+          ctx.fill();
 
+          ctx.beginPath()
+          ctx.moveTo(x3,y3);
+          ctx.lineTo(x5,y5);
+          ctx.lineTo(x6,y6);
+          ctx.lineTo(x4,y4);
+          ctx.closePath();
+          ctx.fill();
+
+        });
+      }else if(mode === 'eraser'){
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(x2,y2,global.penRadius,0,2*Math.PI);
+        ctx.clip();
+        ctx.clearRect(0,0,canv.width,canv.height);
+        ctx.restore();
+
+        ctx.save();
+        ctx.beginPath()
+        ctx.moveTo(x3,y3);
+        ctx.lineTo(x5,y5);
+        ctx.lineTo(x6,y6);
+        ctx.lineTo(x4,y4);
+        ctx.closePath();
+        ctx.clip();
+        ctx.clearRect(0,0,canv.width,canv.height);
+        ctx.restore();
+      }
+      
     }
+    var handPress =(layerName,pX,pY,newLayerName)=>{
+      this.moved=false;
+      this.setState({press:true, mouseX:pX, mouseY:pY});
+      if(this.mode==='color'&&newLayerName!==0){
+        changeActiveLayer(newLayerName,()=>{eventProxy.trigger('paintRect_'+newLayerName);});
+      }
+    }
+    var penPress =(pX,pY)=>{
+      this.setState({press:true, mouseX:pX, mouseY:pY});
+      paint(this.mode,pX,pY,pX,pY);
+    }
+    var changePointer = (pX,pY)=>{
+      let activeLayer = this.state.activeLayer;
+      let changeto = (pointer)=>{
+        this.pointer = pointer;
+      }
+      let changeselside = (selside)=>{
+        this.selside = selside;
+      } 
+      if(this.mode === 'hand'){
+        if(this.state.activeLayer === global.layerNames[0]){
+          changeselside(-1);
+          changeto('normal');
+        }
+        else{
+          co(function*(){
+            let selside = yield new Promise(function(resolve,reject){
+              eventProxy.trigger('getSelSide_'+ activeLayer, pX, pY, resolve);
+            });
+            changeselside(selside);
+            switch(selside){
+              case 0:
+                changeto('resize_ud');
+                break;
+              case 1:
+                changeto('resize_lr');
+                break;
+              case 2:
+                changeto('resize_ud');
+                break;
+              case 3:
+                changeto('resize_lr');
+                break;
+              case -1:
+              default:
+                changeto('normal'); 
+            }
+          });
+        }
+      }else if(this.mode === 'color'){
+        changeto('color');
+      }else if(this.mode === 'pen' || this.mode === 'eraser'){
+        changeto('pen');
+      }else changeto('normal');
+    }
+    var drawPointer = (x, y)=>{
+      let img = global.pointer.img[this.pointer];
+      let canv = document.getElementById('pointerLayer');
+      let ctx = canv.getContext('2d');
+      ctx.clearRect(0, 0, canv.width, canv.height);
+      if(this.pointer === 'pen'){
+        ctx.beginPath();
+        ctx.arc(x,y,global.penRadius,0,2*Math.PI);
+        ctx.stroke();
+      }
+      if(this.pointer==='normal' || this.pointer==='pen'){
+        ctx.drawImage(img, x, y);
+      }
+      else ctx.drawImage(img, x-32, y-32);
+    }
+    
   	addEventListener('mousedown', function(e) {
   		if(e.which!==1)return;
       let newLayerName = inborder(e.pageX, e.pageY);
 	    if(newLayerName!==-1){
-        console.log(this.mode);
-        if(this.mode === 'move'){
+        if(this.mode === 'hand'){
+          handPress(this.state.activeLayer,e.pageX, e.pageY, newLayerName);
           if(newLayerName===0)newLayerName=this.state.activeLayer;
-          this.setState({
-            press: true,
-            mouseX: e.pageX,
-            mouseY: e.pageY
-          },changeActiveLayer(newLayerName));
+          this.newLayerName = newLayerName;
         }else if(this.mode==='color'){
           if(newLayerName!==0){
             changeActiveLayer(newLayerName,(pageX,pageY)=>{eventProxy.trigger('getColorBase',pageX,pageY)},[e.pageX,e.pageY]);
           }
-        }else if(this.mode==='resize'){
-          doResize_sel(this.state.activeLayer,e.pageX, e.pageY, newLayerName);
+        }else if(this.mode==='pen'){
+          penPress(e.pageX,e.pageY);
+        }else if(this.mode==='eraser'){
+          penPress(e.pageX,e.pageY);
+        }else if(this.mode==='text'){
+          this.setState({press:true, mouseX:e.pageX, mouseY:e.pageY});
         }
 	    }
 	    else this.setState({press: false});
   	}.bind(this));
+
   	addEventListener('mousemove', function(e){
+      this.moved = true;
   		switch(this.mode)
       {
-        case 'move':
-          if(this.state.press){
-            eventProxy.trigger('moveImg_'+this.state.activeLayer,e.pageX-this.state.mouseX,e.pageY-this.state.mouseY);
-            this.setState({
-                mouseX: e.pageX,
-                mouseY: e.pageY
-              });
-          }
-          break;
-        case 'resize':
+        case 'hand':
           if(this.state.press){
             if(this.selside !== -1) eventProxy.trigger('resizeTo_'+this.state.activeLayer,e.pageX,e.pageY,this.selside);
+            else{
+              eventProxy.trigger('moveImg_'+this.state.activeLayer,e.pageX-this.state.mouseX,e.pageY-this.state.mouseY);
+              this.setState({
+                  mouseX: e.pageX,
+                  mouseY: e.pageY
+                });
+            }
           }
           else{
-            changeRsizeHand(e.pageX,e.pageY);
+            changePointer(e.pageX,e.pageY);
+          }
+          break;
+        case 'pen':
+        case 'eraser':
+          if(this.state.press){
+            paint(this.mode,e.pageX,e.pageY,this.state.mouseX,this.state.mouseY);
+            this.setState({
+                  mouseX: e.pageX,
+                  mouseY: e.pageY
+                });
+          }else{
+            changePointer(e.pageX,e.pageY);
+          }
+          break;
+        case 'text':
+          if(this.state.press){
+            eventProxy.trigger('moveText',e.pageX-this.state.mouseX,e.pageY-this.state.mouseY);
+            this.setState({
+                  mouseX: e.pageX,
+                  mouseY: e.pageY
+                });
+          }else{
+            changePointer(e.pageX,e.pageY);
           }
           break;
         default:
+          changePointer(e.pageX,e.pageY);
         break;
       }
-      wirteHand();
+      drawPointer(e.pageX,e.pageY);
   	}.bind(this));
+
   	addEventListener('mouseup', function(e){
   		if(e.which!==1)return;
+      if(this.mode==='hand' && this.moved){
+        eventProxy.trigger('saveData_'+this.state.activeLayer);
+      }
+      if(this.mode!=='show' && this.state.press && !this.moved && this.newLayerName !== this.state.activeLayer){
+        changeActiveLayer(this.newLayerName);
+      }
   		this.setState({press: false});
   	}.bind(this));
   	eventProxy.on('changeLayer',changeActiveLayer);
-    eventProxy.on('changeHand',changeHand)
+    eventProxy.on('changeMode',changeMode)
   }
   ComponentWillUnmount(){
   	removeEventListener('mouseup');
   	removeEventListener('mousedown');
   	removeEventListener('mousemove');
   	eventProxy.off('changeLayer');
-    eventProxy.off('changeHand');
+    eventProxy.off('changeMode');
   }
   render() {
     let items = [];
@@ -359,10 +273,12 @@ class Scene extends Component {
       items.push(<CanvWrap key={i} canvName={global.layerNames[i]} back={i===0}/>);
     }
     return (
-      <div>
+      <div style={{cursor:"none"}}>
         {items}
+        <canvas id="paintLayer" className="scene" width={600} height={800} />
+        <CanvWrapText />
         <canvas id="opLayer" className="scene" width={600} height={800} /> 
-        <canvas id="handLayer" className="scene" width={600} height={800} />       
+        <canvas id="pointerLayer" className="scene" width={600} height={800} />
       </div>
     );
   }

@@ -171,6 +171,69 @@ const Mypaint = {
 				}
 			}	
 		}
+	},
+	paint_spot: function(imgData,color1,color2,radius,distance,dx,dy){
+		function Add(a,b){
+			a+=b;
+			if(a>255)a=255;
+			if(a<0)a=0;
+			return a;
+		}
+		let canv = document.createElement('canvas');
+		canv.width = imgData.width;
+		canv.height = imgData.height;
+		let ctx = canv.getContext('2d');
+		ctx.fillStyle=color2;
+		ctx.fillRect(0,0,canv.width,canv.height);
+		let flag = false;
+		for(let y = dy ; y < imgData.height ;y += Math.round(distance * 0.866)){
+			let stx = flag ? (dx + Math.round(distance / 2)) : dx;
+			for(let x = stx; x < imgData.width; x+=distance){
+				ctx.beginPath();
+          		ctx.arc(x,y,radius,0,2*Math.PI);
+          		ctx.fillStyle=color1;
+          		ctx.fill();
+			}
+			for(let x = stx - distance; x >= 0; x-=distance){
+				ctx.beginPath();
+          		ctx.arc(x,y,radius,0,2*Math.PI);
+          		ctx.fillStyle=color1;
+          		ctx.fill();
+			}
+			flag = !flag;
+		}
+
+		flag = true;
+		
+		for(let y = dy - Math.round(distance * 0.866) ; y >= 0; y -= Math.round(distance * 0.866)){
+			let stx = flag ? (dx + Math.round(distance / 2)) : dx;
+			for(let x = stx; x < imgData.width; x+=distance){
+				ctx.beginPath();
+          		ctx.arc(x,y,radius,0,2*Math.PI);
+          		ctx.fillStyle=color1;
+          		ctx.fill();
+			}
+			for(let x = stx - distance; x >= 0; x-=distance){
+				ctx.beginPath();
+          		ctx.arc(x,y,radius,0,2*Math.PI);
+          		ctx.fillStyle=color1;
+          		ctx.fill();
+			}
+			flag = !flag;
+		}
+		let imgData2 = ctx.getImageData(0,0,canv.width,canv.height);
+		
+		let pos = (dy*imgData.width+dx)*4;
+		let color_r=imgData.data[pos];
+		let color_g=imgData.data[pos+1];
+		let color_b=imgData.data[pos+2];
+		
+		for (let i=0;i<imgData.data.length;i+=4){
+			if(imgData.data[i+3]===0)continue;
+			imgData.data[i]=Add(imgData.data[i],imgData2.data[i]-color_r);
+			imgData.data[i+1]=Add(imgData.data[i+1],imgData2.data[i+1]-color_g);
+			imgData.data[i+2]=Add(imgData.data[i+2],imgData2.data[i+2]-color_b);
+		}
 	}
 }
 export default Mypaint;

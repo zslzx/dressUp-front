@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import $ from 'jquery';
 import eventProxy from './eventProxy'
 
 class Library extends Component {
@@ -7,48 +6,66 @@ class Library extends Component {
     super(props);
     this.state = {
     	nowLayer: this.props.layerName,
-    	choosed: {
-    		canvas_top: -1,
-    		canvas_middle: -1,
-    		canvas_bottom: -1
-    	}
+ 		choosed: -1,
+    	filter: this.props.filter
     };
+    this.list = [];
+  }
+  componentWillReceiveProps(nextProps){
+  	this.setState({filter: nextProps.filter});
   }
   render() {
   	var getContents = ()=>{
-	  	function rechoose(i,that){
-	  		let nextchoosed = {};
-	  		$.extend(nextchoosed,that.state.choosed);
-	  		nextchoosed[that.state.nowLayer]=i;
+	  	var rechoose = (i)=>{
 	  		let img = new Image();
-	  		if(i !== -1)img.src = global.contents[that.state.nowLayer][i].src;
-	  		else img =null;
-	  		eventProxy.trigger('changeImg_'+that.state.nowLayer,img);
-	  		that.setState({choosed: nextchoosed});
+	  		img.src = i !== -1 ? global.contents[this.state.nowLayer][this.list[i]].src : null;
+	  		let imgname = i !== -1 ? global.contents[this.state.nowLayer][this.list[i]].name : '';
+	  		if(this.state.nowLayer === global.layerNames[0])global.modelName = imgname;
+	  		eventProxy.trigger('changeImg_'+this.state.nowLayer,img,imgname);
+	  		if(this.state.nowLayer === global.layerNames[0]){
+	  			for(let j in global.layerNames){
+	  				if(j==0)continue;
+	  				eventProxy.trigger('adjust_'+global.layerNames[j]);
+	  			}
+	  		}
+	  		this.setState({choosed: i});
+
 	  	};
 	  	function isTransparent(ok){
 	  		return {borderColor: ok?"#108EE9":"transparent"}
 	  	}
+
+	  	function analysis(str){
+	  		let ret = {};
+	  		ret.arms = (str.indexOf('-noarms') === -1);
+	  		ret.legs = (str.indexOf('-nolegs') === -1);
+	  		ret.back = (str.indexOf('-back') !== -1);
+	  		return ret;
+	  	}
+	  	this.list = [];
+	  	let filter = this.state.filter;
+	  	for(let i=0;i<global.contents[this.state.nowLayer].length;i++){
+	  		let res = analysis(global.contents[this.state.nowLayer][i].name);
+	  		if(res.back === filter.back && (this.state.nowLayer !== global.layerNames[0] || (res.legs===filter.legs && res.arms===filter.arms) )){
+	  			this.list.push(i);
+	  		}
+	  	}
+
+
 	  	let ret = [];
 	  	if(true){
 	  		let i =-1;
-	  		let nextchoosed = {};
-	  		$.extend(nextchoosed,this.state.choosed);
-	  		nextchoosed[this.state.nowLayer]=i;
 	  		ret.push(
-	  			<div key={i} className="item" onClick={()=>{rechoose(i,this);}} style={isTransparent(i===this.state.choosed[this.state.nowLayer])}>
+	  			<div key={i} className="item" onClick={()=>{rechoose(i);}} style={isTransparent(i===this.state.choosed)}>
 	  				null
 	  			</div>
 	  			);
 	  	}
-	  	for(let i=0;i<global.contents[this.state.nowLayer].length;i++){
-	  		if((i+1)%3===0)ret.push(<br />);
-	  		let nextchoosed = {};
-	  		$.extend(nextchoosed,this.state.choosed);
-	  		nextchoosed[this.state.nowLayer]=i;
+	  	for(let i=0;i<this.list.length;i++){
+	  		ret.push(<br />);
 	  		ret.push(
-	  			<div key={i} className="item" onClick={(e)=>{rechoose(i,this);}} style={isTransparent(i===this.state.choosed[this.state.nowLayer])}>
-	  				<img src={global.contents[this.state.nowLayer][i].src} alt={""} height={40} width={40}/>
+	  			<div key={i} className="item" onClick={(e)=>{rechoose(i);}} style={isTransparent(i===this.state.choosed)}>
+	  				<img src={global.contents[this.state.nowLayer][this.list[i]].src} alt={""} height={40} width={40}/>
 	  			</div>
 	  			);
 	  	}
@@ -57,9 +74,6 @@ class Library extends Component {
   	var contents = getContents();
     return (
       <div>
-      	<h1 style={{padding: 10}}>
-      		{this.state.nowLayer+":"}
-      	</h1>
       	{contents}
       </div>
     );

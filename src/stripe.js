@@ -2,7 +2,48 @@ import React, { Component } from 'react';
 import reactCSS from 'reactcss'
 import eventProxy from './eventProxy'
 import {Select,InputNumber,Switch,Button} from 'antd'
-import {TwitterPicker as ColorChooser} from 'react-color'
+import {SketchPicker as ColorChooser} from 'react-color'
+
+
+import { Slider, Row, Col } from 'antd';
+
+class IntegerStep extends React.Component {
+  state = {
+    inputValue: 5,
+  }
+  onChange = (value) => {
+  	global.penRadius = value;
+    this.setState({
+      inputValue: value,
+    });
+  }
+  render() {
+    return (
+      <Row>
+      	<Col span={8}>
+      		笔刷大小:
+      	</Col>
+        <Col span={8}>
+          <Slider min={1} max={50} onChange={this.onChange} value={this.state.inputValue} />
+        </Col>
+        <Col span={4}>
+          <InputNumber
+            min={1}
+            max={50}
+            style={{ marginLeft: 12 }}
+            value={this.state.inputValue}
+            onChange={this.onChange}
+          />
+        </Col>
+      </Row>
+    );
+  }
+}
+
+
+
+
+
 
 var Option = Select.Option;
 class Stripe extends Component{
@@ -19,7 +60,8 @@ class Stripe extends Component{
 			color1Active: false,
 			color2Active: false,
 			width: 0,
-			height: 0
+			height: 0,
+			distance: 50
 		};
 	}
 	componentDidMount(){
@@ -28,7 +70,7 @@ class Stripe extends Component{
 			eventProxy.trigger('querySize_' + newLayer);
 		});
 		eventProxy.on('getColorBase',(pX,pY)=>{
-			eventProxy.trigger('changeColor2_'+this.state.nowLayer,this.state.type,this.state.color1,this.state.color2,this.state.sWidth,pX,pY);
+			eventProxy.trigger('changeColor2_'+this.state.nowLayer,this.state.type,this.state.color1,this.state.color2,this.state.sWidth,this.state.distance,pX,pY);
 		});
 		eventProxy.on('getSize',(width,height)=>{
 			this.setState({
@@ -36,11 +78,15 @@ class Stripe extends Component{
 				height:height
 			});
 		});
+		eventProxy.on('getColor1',(resolve)=>{
+			resolve(this.state.color1);
+		});
 	}
 	componentWillUnmount(){
 		eventProxy.off('changeLayer_c');
 		eventProxy.off('getColorBase');
 		eventProxy.off('getSize');
+		eventProxy.off('getColor1');
 	}
 	render(){
 		var handleChangeRelated = (value)=>{
@@ -75,7 +121,7 @@ class Stripe extends Component{
 		}
 		var handleChangeColor1= (color)=>{
 			this.setState({
-				color1: color.hex
+				color1: color.hex,
 			});
 		}
 		var handleChangeColor2= (color)=>{
@@ -91,6 +137,11 @@ class Stripe extends Component{
 				width:width
 			});
 		}
+		var handleChangeDistance = (dis)=>{
+			this.setState({
+				distance:dis
+			});
+		}
 		var handleChangeHeight = (height)=>{
 			this.setState({
 				height:height
@@ -101,27 +152,31 @@ class Stripe extends Component{
 		}
 		const styles = reactCSS({
 	      'default': {
+	        colorborder: {
+	          width: '36px',
+	          height: '15px',
+	          display: 'inline-block',
+	          	
+	        },
 	        color1: {
 	          width: '36px',
 	          height: '15px',
 	          borderRadius: '2px',
 	          background: this.state.color1,
 	          boxShadow: '0 0 0 1px rgba(0,0,0,.1)',
-	          display: 'inline-block',
 	          cursor: 'pointer'
 	        },
 	        color2: {
 	          width: '36px',
-	          height: '14px',
+	          height: '15px',
 	          borderRadius: '2px',
 	          background: this.state.color2,
 	          boxShadow: '0 0 0 1px rgba(0,0,0,.1)',
-	          display: 'inline-block',
 	          cursor: 'pointer'
 	        },
 	        popover: {
 	          left: "-5px",
-	          top: "25px",
+	          top: "10px",
 	          position: 'relative',
 	          zIndex: '2',
 	        },
@@ -133,43 +188,45 @@ class Stripe extends Component{
 	    });
 		return (
 			<div>
-				<h2>stripe</h2>
+				<h2>info</h2>
 				<div style={styles.center}>
-				duixiang:{this.state.nowLayer} <br/>
-				guanlian:<Switch defaultChecked={this.state.related} onChange={handleChangeRelated} /> &nbsp;&nbsp;
+				layer:{this.state.nowLayer} <br/>
+				{/*both side:<Switch defaultChecked={this.state.related} onChange={handleChangeRelated} /> &nbsp;&nbsp;
 				<Select defaultValue={this.state.direction} style={{width:80}} onChange={handleChangeDirection} disabled={this.state.related}>
-				    <Option value="front">zheng</Option>
-				    <Option value="back">fan</Option>
+				    <Option value="front">front</Option>
+				    <Option value="back">back</Option>
+				</Select>
+				<br/>*/}
+				条纹样式:<Select defaultValue={this.state.type} style={{width:100}} onChange={handleChangeType}>
+				    <Option value="pure">纯色</Option>
+				    <Option value="horizontal">横条</Option>
+				    <Option value="vertical">竖条</Option>
+				    <Option value="plaid">格子</Option>
+				    <Option value="spot">斑点</Option>
 				</Select>
 				<br/>
-				type:<Select defaultValue={this.state.type} style={{width:100}} onChange={handleChangeType}>
-				    <Option value="pure">pure</Option>
-				    <Option value="horizontal">horizontal</Option>
-				    <Option value="vertical">vertical</Option>
-				    <Option value="plaid">plaid</Option>
-				</Select>
+				宽度/半径:<InputNumber min={5} max={500} defaultValue={this.state.sWidth} onChange={handleChangeSWidth} />
 				<br/>
-				sWidth/radius:<InputNumber min={5} max={500} defaultValue={this.state.sWidth} onChange={handleChangeSWidth} />
+				圆心距离:<InputNumber min={5} max={500} defaultValue={this.state.distance} onChange={handleChangeDistance} />
 				<br/>
 				<br/>
-				&nbsp;color1:&nbsp;
-				<div style={styles.color1} onClick={handleClickColor1}>
-					{this.state.color1Active?(<div style={styles.popover}><ColorChooser width={205} color={this.state.color1} onChange={handleChangeColor1} /></div>):null}
+				颜色1:&nbsp;
+				<div style={styles.colorborder}>
+					<div style={styles.color1} onClick={handleClickColor1} />
+					{this.state.color1Active?(<div style={styles.popover}><ColorChooser disableAlpha="true" width={205} color={this.state.color1} onChange={handleChangeColor1} /></div>):null}
 				</div>
 				<br/>
-				<br/>
-				&nbsp;color2:&nbsp;
-				<div style={styles.color2} onClick={handleClickColor2}>
-					{this.state.color2Active?(<div style={styles.popover}><ColorChooser width={205} color={this.state.color2} onChange={handleChangeColor2} /></div>):null}
+				颜色2:&nbsp;
+				<div style={styles.colorborder}>
+					<div style={styles.color2} onClick={handleClickColor2} />
+					{this.state.color2Active?(<div style={styles.popover}><ColorChooser disableAlpha="true" width={205} color={this.state.color2} onChange={handleChangeColor2} /></div>):null}
 				</div>
 				<br/>
-				width:<InputNumber min={0} max={1000} defaultValue={this.state.width} onChange={handleChangeWidth} />
-				height:<InputNumber min={0} max={1000} defaultValue={this.state.height} onChange={handleChangeHeight} />
-				{
-				<div className="box_center">
-					<Button type="primary" onClick={changeSize}>apply</Button>
-				</div>
-				}
+				宽:{this.state.width}&nbsp;&nbsp;&nbsp;&nbsp;
+				高:{this.state.height}
+				<br/>
+				<br/>
+				<IntegerStep />
 				</div>
 			</div>
 			);

@@ -5,10 +5,11 @@ body {
   background-color: white;
 } 
 .sidebar{  
-    float: right;
-    width: 300px; 
-    background: white;  
-    border-left-style: solid;
+  float: right;
+  width: 300px; 
+  background: white;  
+  border-left-style: solid;
+  overflow: auto;
 }  
 .box{
   margin: 3px;
@@ -17,6 +18,11 @@ body {
 }
 .box_center{
   text-align: center;
+}
+
+.box2 .ant-input {
+  width: 200px;
+  margin: 0 8px 8px 0;
 }
 
 .item{
@@ -36,8 +42,10 @@ body {
 }
 
 .scene{
+  top:0;
+  left:0;
   position: absolute;
-  cursor:crosshair
+  cursor:none
 }
 
 
