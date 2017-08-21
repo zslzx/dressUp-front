@@ -1,4 +1,10 @@
 // eventProxy.js
+/*
+用法：
+eventProxy.on('事件名'，函数) 监听事件
+eventProxy.trigger('事件名'，需要传递的参数) 触发事件
+eventProxy.off('事件名') 清空对应事件的所有监听
+*/
 const eventProxy = {
   onObj: {},
   oneObj: {},

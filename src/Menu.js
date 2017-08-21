@@ -2,7 +2,9 @@ import React from 'react';
 import {slide as Menu} from 'react-burger-menu'
 import eventProxy from './eventProxy'
 
-
+/*
+没用了
+*/
 class myMenu extends React.Component {
   render () {
     function changelayer(layerName){

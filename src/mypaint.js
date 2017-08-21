@@ -1,3 +1,6 @@
+/*
+  实现具体的上色功能
+*/
 const Mypaint = {
 	hexToRgb: function(hex) {
 	    // Expand shorthand form (e.g. "03F") to full form (e.g. "0033FF")
@@ -14,6 +17,9 @@ const Mypaint = {
 	    } : null;
 	},
 	paint: function(imgData,color,dx,dy){
+		/*
+		  染纯色
+		*/
 		function Add(a,b){
 			a+=b;
 			if(a>255)a=255;
@@ -22,6 +28,7 @@ const Mypaint = {
 		}
 		var dstRGB = this.hexToRgb(color);
 		if(dx !== null && dy !== null){
+			//设定了基准点的时候，将目标色减去基准色
 			let pos = (dy*imgData.width+dx)*4;
 			dstRGB.r-=imgData.data[pos];
 			dstRGB.g-=imgData.data[pos+1];
@@ -44,6 +51,9 @@ const Mypaint = {
 		}
 	},
 	paint_horizontal: function(imgData,color1,color2,width,dx,dy){
+		/*
+		  横条
+		*/
 		function Add(a,b){
 			a+=b;
 			if(a>255)a=255;
@@ -87,6 +97,9 @@ const Mypaint = {
 		}
 	},
 	paint_vertical: function(imgData,color1,color2,width,dx,dy){
+		/*
+		  竖条
+		*/
 		function Add(a,b){
 			a+=b;
 			if(a>255)a=255;
@@ -130,6 +143,9 @@ const Mypaint = {
 		}
 	},
 	paint_plaid: function(imgData,color1,color2,width,dx,dy){
+		/*
+		  格子
+		*/
 		function Add(a,b){
 			a+=b;
 			if(a>255)a=255;
@@ -173,6 +189,9 @@ const Mypaint = {
 		}
 	},
 	paint_spot: function(imgData,color1,color2,radius,distance,dx,dy){
+		/*
+		  斑点：实现方法为在空画布上画平铺斑点，再和原图叠加
+		*/
 		function Add(a,b){
 			a+=b;
 			if(a>255)a=255;

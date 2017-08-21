@@ -41,17 +41,17 @@ class TextEditor extends Component{
 		}
 		return (
 			<Modal
-	          title="TextEditor"
-	          visible={this.state.visible}
-	          onOk={handleOk}
-	          onCancel={handleCancel}
-	        >
-	          <div className="box2">
-	            文字:<Input value={this.state.text} onChange={changeText}/>
-	            文字大小:<InputNumber min={1} max={1000} value={this.state.fontSize} onChange={changeFontSize} />
-	          </div>
-	        </Modal>
-        )
+			  title="TextEditor"
+			  visible={this.state.visible}
+			  onOk={handleOk}
+			  onCancel={handleCancel}
+			>
+			  <div className="box2">
+			    文字:<Input value={this.state.text} onChange={changeText}/>
+			    文字大小:<InputNumber min={1} max={1000} value={this.state.fontSize} onChange={changeFontSize} />
+			  </div>
+			</Modal>
+        	)
 	}
 }
 export default TextEditor;

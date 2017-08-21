@@ -17,9 +17,12 @@ class Library extends Component {
   render() {
   	var getContents = ()=>{
 	  	var rechoose = (i)=>{
+			//选择新素材之后的一系列处理
 	  		let img = new Image();
-	  		img.src = i !== -1 ? global.contents[this.state.nowLayer][this.list[i]].src : null;
-	  		let imgname = i !== -1 ? global.contents[this.state.nowLayer][this.list[i]].name : '';
+			if(i !==-1) img.src = global.contents[this.state.nowLayer][this.list[i]].src;
+			else img = null;
+	  		
+			let imgname = i !== -1 ? global.contents[this.state.nowLayer][this.list[i]].name : '';
 	  		if(this.state.nowLayer === global.layerNames[0])global.modelName = imgname;
 	  		eventProxy.trigger('changeImg_'+this.state.nowLayer,img,imgname);
 	  		if(this.state.nowLayer === global.layerNames[0]){
@@ -29,7 +32,6 @@ class Library extends Component {
 	  			}
 	  		}
 	  		this.setState({choosed: i});
-
 	  	};
 	  	function isTransparent(ok){
 	  		return {borderColor: ok?"#108EE9":"transparent"}
@@ -42,6 +44,7 @@ class Library extends Component {
 	  		ret.back = (str.indexOf('-back') !== -1);
 	  		return ret;
 	  	}
+		//筛选满足过滤条件的素材编号：
 	  	this.list = [];
 	  	let filter = this.state.filter;
 	  	for(let i=0;i<global.contents[this.state.nowLayer].length;i++){
@@ -50,7 +53,7 @@ class Library extends Component {
 	  			this.list.push(i);
 	  		}
 	  	}
-
+		
 
 	  	let ret = [];
 	  	if(true){
@@ -72,11 +75,11 @@ class Library extends Component {
 	  	return ret;
 	}
   	var contents = getContents();
-    return (
-      <div>
-      	{contents}
-      </div>
-    );
+	return (
+	  <div>
+	    {contents}
+	  </div>
+	);
   }
 }
 

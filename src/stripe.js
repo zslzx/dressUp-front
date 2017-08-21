@@ -1,3 +1,6 @@
+/*
+  info栏的一堆东西
+*/
 import React, { Component } from 'react';
 import reactCSS from 'reactcss'
 import eventProxy from './eventProxy'

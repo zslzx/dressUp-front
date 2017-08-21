@@ -6,12 +6,12 @@ var ajaxget = require('./ajaxget.js');
 
 class CanvWrap extends Component{
   constructor(props){
-  	super(props);
-  	this.state={
-  		img: null,
-  		pX: 0,
-  		pY: 0
-  	}
+    super(props);
+    this.state={
+        img: null,
+        pX: 0,
+        pY: 0
+    }
     this.copy = null;
     this.oriImg = null;
     this.color1 = "#FFFFFF";
@@ -26,24 +26,25 @@ class CanvWrap extends Component{
     this.imgname = '';
   }
   shouldComponentUpdate(nextProps, nextState){
-	    return false;
-	}
+    return false;
+  }
   componentDidMount(){
     this.state.img = document.createElement("canvas");
     this.state.img.width=this.width;
     this.state.img.height=this.height;
 
-  	function showImg(canvasName, img, pX, pY){
-  		var canv = document.getElementById(canvasName);
-  		var ctx = canv.getContext('2d');
-  		ctx.clearRect(0, 0, canv.width, canv.height);
-  		if(!img) return;
-  		var ratio = global.getPixelRatio(ctx);
-  		ctx.drawImage(img,pX*ratio,pY*ratio);
-  	}
+    function showImg(canvasName, img, pX, pY){
+        var canv = document.getElementById(canvasName);
+        var ctx = canv.getContext('2d');
+        ctx.clearRect(0, 0, canv.width, canv.height);
+        if(!img) return;
+        var ratio = global.getPixelRatio(ctx);
+        ctx.drawImage(img,pX*ratio,pY*ratio);
+    }
 
-  	showImg(this.props.canvName, this.state.img,this.state.pX,this.state.pY);
+    showImg(this.props.canvName, this.state.img,this.state.pX,this.state.pY);
     
+    //画出边框
     var paintRect = ()=>{
       let canv = document.getElementById('opLayer');
       let ctx = canv.getContext('2d');
@@ -61,6 +62,7 @@ class CanvWrap extends Component{
   		});
   	});
     
+    //更新图片
     let updateImg = (reColor)=>{
       let canvasBuffer = this.state.img;
       let contextBuffer = this.state.img.getContext("2d");
@@ -68,7 +70,7 @@ class CanvWrap extends Component{
       canvasBuffer.height=this.height;
       contextBuffer = this.state.img.getContext("2d");
       contextBuffer.clearRect(0, 0, canvasBuffer.width, canvasBuffer.height);
-      if(this.oriImg!==null){
+      if(this.oriImg){
         
         contextBuffer.drawImage(this.oriImg,0,0,this.width,this.height);
       }
@@ -100,6 +102,7 @@ class CanvWrap extends Component{
       this.dy = null;
     }
 
+    //更改大小
     let updateSize = (width,height)=>{
       this.width = width;
       this.height = height;
@@ -126,6 +129,7 @@ class CanvWrap extends Component{
       this.copy = canv;
     }
 
+    //上色（已经没用了）
     eventProxy.on('changeColor_'+this.props.canvName,(type,color1,color2,sWidth)=>{
       this.type = type;
       this.color1 = color1;
@@ -135,6 +139,7 @@ class CanvWrap extends Component{
       paintRect();
     });
 
+    //上色加强版
     eventProxy.on('changeColor2_'+this.props.canvName,(type,color1,color2,sWidth,distance,dx,dy)=>{
       this.type = type;
       this.color1 = color1;
@@ -147,7 +152,8 @@ class CanvWrap extends Component{
       paintRect();
     });
 
-  	eventProxy.on('changeImg_'+this.props.canvName, (img,imgname)=>{
+   //更改图片
+    eventProxy.on('changeImg_'+this.props.canvName, (img,imgname)=>{
       this.oriImg = img;
       this.imgname = imgname;
       let szinfo = ajaxget('/Interfaces/Getszinfo',{modelname:global.modelName,imgname:imgname,width:img?img.width:0,height:img?img.height:0});
@@ -157,7 +163,7 @@ class CanvWrap extends Component{
       szinfo.height = parseInt(szinfo.height);
       this.width = szinfo.width;
       this.height = szinfo.height;
-      eventProxy.trigger('getSize',this.width,this.height);
+      eventProxy.trigger('getSize',this.width,this.height);//同时把info界面的显示改了
       if(this.props.canvName === global.layerNames[0]){
         global.modelX = szinfo.dx;
         global.modelY = szinfo.dy;
@@ -172,7 +178,7 @@ class CanvWrap extends Component{
           paintRect();  
         });
       }
-  	});
+    });
 
     eventProxy.on('querySize_'+this.props.canvName, ()=>{
       eventProxy.trigger('getSize',this.width,this.height);
@@ -181,7 +187,8 @@ class CanvWrap extends Component{
     eventProxy.on('changeSize_'+this.props.canvName, updateSize);
 
     eventProxy.on('paintRect_'+this.props.canvName,paintRect);
-
+    
+    //检测鼠标是否处于方框边沿，并返回处于哪个边沿
     eventProxy.on('getSelSide_'+this.props.canvName,(x, y, resolve)=>{
       if(x > this.state.pX + this.width + 5 || x < this.state.pX - 5 || y < this.state.pY - 5 || y > this.state.pY + this.height + 5)resolve(-1);
       let disUp = Math.abs(y-this.state.pY);
@@ -202,6 +209,7 @@ class CanvWrap extends Component{
       }
     });
 
+    //通过拖动更改大小
     eventProxy.on('resizeTo_'+this.props.canvName,(x, y, selside)=>{
       let newh,neww;
       switch(selside){
@@ -235,6 +243,7 @@ class CanvWrap extends Component{
       if(selside !== -1)paintRect();
     });
 
+    //保存信息
     eventProxy.on('saveData_'+this.props.canvName,()=>{
       if(this.props.canvName === global.layerNames[0]){
         ajaxget('/Interfaces/saveData',{modelname:global.modelName,imgname:this.imgname,dx:this.state.pX,dy:this.state.pY,width:this.width,height:this.height});
@@ -243,6 +252,7 @@ class CanvWrap extends Component{
       }
     })
     
+   //更改模特时触发的衣物调整
     eventProxy.on('adjust_'+this.props.canvName,()=>{
       if(this.imgname === '')return;
       let szinfo=ajaxget('/Interfaces/adjust',{
@@ -263,8 +273,9 @@ class CanvWrap extends Component{
     });
   }
   componentWillUnmount(){
-  	eventProxy.off('moveImg_'+this.props.canvName);
-  	eventProxy.off('changeImg_'+this.props.canvName);
+    //移除事件
+    eventProxy.off('moveImg_'+this.props.canvName);
+    eventProxy.off('changeImg_'+this.props.canvName);
     eventProxy.off('changeColor_'+this.props.canvName);
     eventProxy.off('changeColor2_'+this.props.canvName);
     eventProxy.off('querySize_'+this.props.canvName);
