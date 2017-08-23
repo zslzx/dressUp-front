@@ -6,8 +6,6 @@
     "antd": "^2.12.1",
     "co": "^4.6.0",
     "eslint": "^4.2.0",
-    "eslint-plugin-flowtype": "^2.35.0",
-    "eslint-plugin-import": "^2.7.0",
     "hidpi-canvas": "^1.0.10",
     "jquery": "^3.2.1",
     "react": "^15.6.1",

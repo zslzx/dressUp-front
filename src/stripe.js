@@ -11,23 +11,26 @@ import {SketchPicker as ColorChooser} from 'react-color'
 import { Slider, Row, Col } from 'antd';
 
 class IntegerStep extends React.Component {
-  state = {
-    inputValue: 5,
-  }
-  onChange = (value) => {
-  	global.penRadius = value;
-    this.setState({
-      inputValue: value,
-    });
+  constructor(props){
+      super(props);
+      this.state = {
+        inputValue: 5,
+      }
   }
   render() {
+    var onChange = (value) => {
+        global.penRadius = value;
+        this.setState({
+          inputValue: value,
+        });
+    }
     return (
       <Row>
       	<Col span={8}>
       		笔刷大小:
       	</Col>
         <Col span={8}>
-          <Slider min={1} max={50} onChange={this.onChange} value={this.state.inputValue} />
+          <Slider min={1} max={50} onChange={onChange} value={this.state.inputValue} />
         </Col>
         <Col span={4}>
           <InputNumber
